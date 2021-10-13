@@ -4,9 +4,10 @@ use prod;
 
 create table parking(
 PARKING_NUMBER int PRIMARY KEY,
-AVAILABLE bool NOT NULL,
+AVAILABLE bool NOT NULL,CC
 TYPE varchar(10) NOT NULL
 );
+
 
 create table ticket(
  ID int PRIMARY KEY AUTO_INCREMENT,
