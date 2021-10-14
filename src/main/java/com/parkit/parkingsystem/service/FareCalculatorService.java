@@ -23,7 +23,9 @@ public class FareCalculatorService {
 
         double endTime = minutes / 60;
 
-
+        if(endTime <= 0.5){ // First thirty minutes free
+            endTime = 0;
+        }
 
         switch (ticket.getParkingSpot().getParkingType()){
             case CAR: {
@@ -36,5 +38,7 @@ public class FareCalculatorService {
             }
             default: throw new IllegalArgumentException("Unkown Parking Type");
         }
+
+
     }
 }
