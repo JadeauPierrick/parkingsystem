@@ -2,21 +2,36 @@ package com.parkit.parkingsystem;
 
 import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.constants.ParkingType;
+import com.parkit.parkingsystem.dao.ParkingSpotDAO;
+import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.FareCalculatorService;
+import com.parkit.parkingsystem.service.ParkingService;
+import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Date;
 
+@ExtendWith(MockitoExtension.class)
 public class FareCalculatorServiceTest {
 
     private static FareCalculatorService fareCalculatorService;
     private Ticket ticket;
+
+    @Mock
+    InputReaderUtil inputReaderUtil;
+    @Mock
+    ParkingSpotDAO parkingSpotDAO;
+    @Mock
+    TicketDAO ticketDAO;
 
     @BeforeAll
     private static void setUp() {
@@ -93,7 +108,7 @@ public class FareCalculatorServiceTest {
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals((0.75 * Fare.BIKE_RATE_PER_HOUR), ticket.getPrice());
+        assertEquals((0.25 * Fare.BIKE_RATE_PER_HOUR), ticket.getPrice());
     }
 
     @Test
@@ -107,7 +122,7 @@ public class FareCalculatorServiceTest {
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
-        assertEquals((0.75 * Fare.CAR_RATE_PER_HOUR), ticket.getPrice());
+        assertEquals((0.25 * Fare.CAR_RATE_PER_HOUR), ticket.getPrice());
     }
 
     @Test
@@ -136,6 +151,28 @@ public class FareCalculatorServiceTest {
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);
         assertEquals(0, ticket.getPrice());
+    }
+
+    @Test
+    public void calculateFareBikeForOneHourWhenTheCustomerIsARecurrentUser() throws Exception {
+
+        ticket.setVehicleRegNumber("ABCDEF");
+        when(ticketDAO.fivePercent(any(String.class))).thenReturn(true);
+
+        Date inTime = new Date();
+        inTime.setTime(System.currentTimeMillis() - (60 * 60 * 1000));
+        Date outTime = new Date();
+        ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE, false);
+        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+
+        ticket.setInTime(inTime);
+        parkingService.setRatePerHourIfNotFirstTime(ticket.getVehicleRegNumber());
+        ticket.setOutTime(outTime);
+        ticket.setParkingSpot(parkingSpot);
+        fareCalculatorService.calculateFare(ticket);
+
+        assertEquals(0.5 * 0.95, ticket.getPrice());
+
     }
 }
 

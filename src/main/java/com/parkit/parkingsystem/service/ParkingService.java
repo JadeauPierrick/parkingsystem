@@ -1,5 +1,6 @@
 package com.parkit.parkingsystem.service;
 
+import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.constants.ParkingType;
 import com.parkit.parkingsystem.dao.ParkingSpotDAO;
 import com.parkit.parkingsystem.dao.TicketDAO;
@@ -32,6 +33,7 @@ public class ParkingService {
             ParkingSpot parkingSpot = getNextParkingNumberIfAvailable();
             if(parkingSpot !=null && parkingSpot.getId() > 0){
                 String vehicleRegNumber = getVehichleRegNumber();
+                setRatePerHourIfNotFirstTime(vehicleRegNumber);
                 parkingSpot.setAvailable(false);
                 parkingSpotDAO.updateParking(parkingSpot);//allot this parking space and mark it's availability as false
 
@@ -51,6 +53,15 @@ public class ParkingService {
             }
         }catch(Exception e){
             logger.error("Unable to process incoming vehicle",e);
+        }
+    }
+
+    public void setRatePerHourIfNotFirstTime(String vehicleRegNumber){
+        boolean result = ticketDAO.fivePercent(vehicleRegNumber);
+        if (result == true) {
+            System.out.println("Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount.");
+            Fare.BIKE_RATE_PER_HOUR = 0.95;
+            Fare.CAR_RATE_PER_HOUR = 1.425;
         }
     }
 
