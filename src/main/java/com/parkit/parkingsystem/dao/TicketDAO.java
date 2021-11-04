@@ -89,6 +89,7 @@ public class TicketDAO {
 
     public boolean fivePercent (String vehicleRegNumber) {
         Connection con = null;
+        boolean recurrent = false;
         try {
             con = dataBaseConfig.getConnection();
             PreparedStatement ps = con.prepareStatement(DBConstants.FIVE_PERCENT);
@@ -96,7 +97,7 @@ public class TicketDAO {
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
-                return true;
+                recurrent = true;
             }
             dataBaseConfig.closeResultSet(rs);
             dataBaseConfig.closePreparedStatement(ps);
@@ -106,7 +107,7 @@ public class TicketDAO {
             }finally {
                 dataBaseConfig.closeConnection(con);
             }
-            return false;
+            return recurrent;
         }
     }
 
