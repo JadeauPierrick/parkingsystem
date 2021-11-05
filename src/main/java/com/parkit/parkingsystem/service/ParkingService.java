@@ -33,7 +33,6 @@ public class ParkingService {
             ParkingSpot parkingSpot = getNextParkingNumberIfAvailable();
             if(parkingSpot !=null && parkingSpot.getId() > 0){
                 String vehicleRegNumber = getVehichleRegNumber();
-                setRatePerHourIfNotFirstTime(vehicleRegNumber);
                 parkingSpot.setAvailable(false);
                 parkingSpotDAO.updateParking(parkingSpot);//allot this parking space and mark it's availability as false
 
@@ -56,14 +55,6 @@ public class ParkingService {
         }
     }
 
-    public void setRatePerHourIfNotFirstTime(String vehicleRegNumber){
-        boolean result = ticketDAO.fivePercent(vehicleRegNumber);
-        if (result == true) {
-            System.out.println("Welcome back! As a recurring user of our parking lot, you'll benefit from a 5% discount.");
-            Fare.BIKE_RATE_PER_HOUR = 0.95;
-            Fare.CAR_RATE_PER_HOUR = 1.425;
-        }
-    }
 
     private String getVehichleRegNumber() throws Exception {
         System.out.println("Please type the vehicle registration number and press enter key");

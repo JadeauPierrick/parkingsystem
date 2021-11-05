@@ -166,7 +166,6 @@ public class FareCalculatorServiceTest {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
 
         ticket.setInTime(inTime);
-        parkingService.setRatePerHourIfNotFirstTime(ticket.getVehicleRegNumber());
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
         fareCalculatorService.calculateFare(ticket);

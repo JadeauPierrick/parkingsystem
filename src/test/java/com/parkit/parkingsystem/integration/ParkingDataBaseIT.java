@@ -10,10 +10,7 @@ import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.ParkingService;
 import com.parkit.parkingsystem.util.InputReaderUtil;
 import org.apache.commons.beanutils.ResultSetDynaClass;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,7 +35,9 @@ public class ParkingDataBaseIT {
     private static TicketDAO ticketDAO;
     private static DataBasePrepareService dataBasePrepareService;
     private static Connection con;
-    private static Ticket ticket;
+    private static PreparedStatement ps;
+    private static ResultSet rs;
+
 
     @Mock
     private static InputReaderUtil inputReaderUtil;
@@ -62,9 +61,15 @@ public class ParkingDataBaseIT {
         con = dataBaseTestConfig.getConnection();
     }
 
+    @AfterEach
+        private void tearDownPerTest() throws Exception {
+        dataBaseTestConfig.closeResultSet(rs);
+        dataBaseTestConfig.closePreparedStatement(ps);
+    }
+
     @AfterAll
     private static void tearDown(){
-
+        dataBaseTestConfig.closeConnection(con);
 
     }
 
@@ -73,7 +78,7 @@ public class ParkingDataBaseIT {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processIncomingVehicle();
 
-        PreparedStatement ps = con.prepareStatement("SELECT t.VEHICLE_REG_NUMBER, p.AVAILABLE FROM ticket t, parking p WHERE t.PARKING_NUMBER = p.PARKING_NUMBER AND t.VEHICLE_REG_NUMBER=? ORDER BY t.ID DESC");
+        ps = con.prepareStatement("SELECT t.VEHICLE_REG_NUMBER, p.AVAILABLE FROM ticket t, parking p WHERE t.PARKING_NUMBER = p.PARKING_NUMBER AND t.VEHICLE_REG_NUMBER=? ORDER BY t.ID DESC");
         ps.setString(1,"ABCDEF");
         ResultSet rs = ps.executeQuery();
         rs.next();
@@ -91,7 +96,7 @@ public class ParkingDataBaseIT {
         ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
         parkingService.processExitingVehicle();
 
-        PreparedStatement ps = con.prepareStatement("SELECT PRICE, OUT_TIME FROM ticket WHERE VEHICLE_REG_NUMBER=? ORDER BY ID DESC");
+        ps = con.prepareStatement("SELECT PRICE, OUT_TIME FROM ticket WHERE VEHICLE_REG_NUMBER=? ORDER BY ID DESC");
         ps.setString(1, "ABCDEF");
         ResultSet rs = ps.executeQuery();
         rs.next();

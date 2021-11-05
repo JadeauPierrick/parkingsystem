@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 public class FareCalculatorService {
 
+    TicketDAO ticketDAO = new TicketDAO();
 
     public void calculateFare(Ticket ticket){
         if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ){
@@ -42,6 +43,10 @@ public class FareCalculatorService {
                 break;
             }
             default: throw new IllegalArgumentException("Unkown Parking Type");
+        }
+        boolean recurrent = ticketDAO.fivePercent(ticket.getVehicleRegNumber());
+        if (recurrent){
+            ticket.setPrice(ticket.getPrice()* 0.95);
         }
     }
 }
