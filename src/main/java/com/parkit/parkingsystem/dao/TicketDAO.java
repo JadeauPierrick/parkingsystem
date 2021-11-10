@@ -98,8 +98,9 @@ public class TicketDAO {
             PreparedStatement ps = con.prepareStatement(DBConstants.FIVE_PERCENT);
             ps.setString(1,vehicleRegNumber);
             ResultSet rs = ps.executeQuery();
+            rs.next();
 
-            if (rs.next()) {
+            if (rs.getInt(1)>= 1) {
                 recurrent = true;
             }
             dataBaseConfig.closeResultSet(rs);

@@ -9,11 +9,17 @@ import java.util.concurrent.TimeUnit;
 
 public class FareCalculatorService {
 
-    TicketDAO ticketDAO = new TicketDAO();
+    private TicketDAO ticketDAO;
+    
+    public FareCalculatorService (TicketDAO ticketDAO){
+        this.ticketDAO = ticketDAO;
+    }
 
-    public void calculateFare(Ticket ticket){
-        if( (ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime())) ){
-            throw new IllegalArgumentException("Out time provided is incorrect:"+ticket.getOutTime().toString());
+
+
+    public void calculateFare(Ticket ticket) {
+        if ((ticket.getOutTime() == null) || (ticket.getOutTime().before(ticket.getInTime()))) {
+            throw new IllegalArgumentException("Out time provided is incorrect:" + ticket.getOutTime().toString());
         }
 
 
@@ -27,13 +33,12 @@ public class FareCalculatorService {
 
         double endTime = (minutes / 60) - 0.5; // -0.5 First thirty minutes free
 
-        if(endTime < 0){
+        if (endTime < 0) {
             endTime = 0;
         }
 
 
-
-        switch (ticket.getParkingSpot().getParkingType()){
+        switch (ticket.getParkingSpot().getParkingType()) {
             case CAR: {
                 ticket.setPrice(endTime * Fare.CAR_RATE_PER_HOUR);
                 break;
@@ -42,11 +47,12 @@ public class FareCalculatorService {
                 ticket.setPrice(endTime * Fare.BIKE_RATE_PER_HOUR);
                 break;
             }
-            default: throw new IllegalArgumentException("Unkown Parking Type");
+            default:
+                throw new IllegalArgumentException("Unkown Parking Type");
         }
-        boolean recurrent = ticketDAO.fivePercent(ticket.getVehicleRegNumber());
-        if (recurrent){
-            ticket.setPrice(ticket.getPrice()* 0.95);
+        boolean recurrentUser = ticketDAO.fivePercent(ticket.getVehicleRegNumber());
+        if (recurrentUser) {
+            ticket.setPrice(ticket.getPrice() * 0.95);
         }
     }
 }

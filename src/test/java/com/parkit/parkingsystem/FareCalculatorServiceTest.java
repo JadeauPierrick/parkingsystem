@@ -2,14 +2,10 @@ package com.parkit.parkingsystem;
 
 import com.parkit.parkingsystem.constants.Fare;
 import com.parkit.parkingsystem.constants.ParkingType;
-import com.parkit.parkingsystem.dao.ParkingSpotDAO;
 import com.parkit.parkingsystem.dao.TicketDAO;
 import com.parkit.parkingsystem.model.ParkingSpot;
 import com.parkit.parkingsystem.model.Ticket;
 import com.parkit.parkingsystem.service.FareCalculatorService;
-import com.parkit.parkingsystem.service.ParkingService;
-import com.parkit.parkingsystem.util.InputReaderUtil;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,26 +19,20 @@ import java.util.Date;
 @ExtendWith(MockitoExtension.class)
 public class FareCalculatorServiceTest {
 
-    private static FareCalculatorService fareCalculatorService;
+    private FareCalculatorService fareCalculatorService;
     private Ticket ticket;
 
-    @Mock
-    InputReaderUtil inputReaderUtil;
-    @Mock
-    ParkingSpotDAO parkingSpotDAO;
-    @Mock
-    TicketDAO ticketDAO;
 
-    @BeforeAll
-    private static void setUp() {
-        fareCalculatorService = new FareCalculatorService();
-    }
+    @Mock
+    private TicketDAO ticketDAO;
+
+
 
     @BeforeEach
-    private void setUpPerTest() {
+    private  void setUp() {
         ticket = new Ticket();
+        fareCalculatorService = new FareCalculatorService(ticketDAO);
     }
-
     @Test
     public void calculateFareCar() {
         Date inTime = new Date();
@@ -154,21 +144,22 @@ public class FareCalculatorServiceTest {
     }
 
     @Test
-    public void calculateFareBikeForOneHourWhenTheCustomerIsARecurrentUser() throws Exception {
+    public void calculateFareBikeForOneHourWhenTheCustomerIsARecurrentUser() {
 
-        ticket.setVehicleRegNumber("ABCDEF");
         when(ticketDAO.fivePercent(any(String.class))).thenReturn(true);
 
         Date inTime = new Date();
         inTime.setTime(System.currentTimeMillis() - (60 * 60 * 1000));
         Date outTime = new Date();
         ParkingSpot parkingSpot = new ParkingSpot(1, ParkingType.BIKE, false);
-        ParkingService parkingService = new ParkingService(inputReaderUtil, parkingSpotDAO, ticketDAO);
+
 
         ticket.setInTime(inTime);
         ticket.setOutTime(outTime);
         ticket.setParkingSpot(parkingSpot);
+        ticket.setVehicleRegNumber("ABCDEF");
         fareCalculatorService.calculateFare(ticket);
+
 
         assertEquals(0.5 * 0.95, ticket.getPrice());
 
