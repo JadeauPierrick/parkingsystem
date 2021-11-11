@@ -100,7 +100,7 @@ public class TicketDAO {
             ResultSet rs = ps.executeQuery();
             rs.next();
 
-            if (rs.getInt(1)>= 2) {
+            if (rs.getInt(1)>= 1) {
                 recurrent = true;
             }
             dataBaseConfig.closeResultSet(rs);
